@@ -144,9 +144,11 @@ export default function AuditLog({ loaderData }: Route.ComponentProps) {
             <span className="font-medium">{_(msg`Created At`)}</span>
 
             <span className="mt-1 block">
-              {DateTime.fromJSDate(document.createdAt)
-                .setLocale(APP_I18N_OPTIONS.defaultLocale)
-                .toFormat('yyyy-MM-dd hh:mm:ss a (ZZZZ)')}
+              {(() => {
+                const dt = DateTime.fromJSDate(document.createdAt).setLocale(APP_I18N_OPTIONS.defaultLocale);
+                const tz = document.documentMeta?.timezone;
+                return tz && tz !== 'N/A' ? dt.setZone(tz).toFormat('yyyy-MM-dd hh:mm:ss a (ZZZZ)') : dt.toFormat('yyyy-MM-dd hh:mm:ss a (ZZZZ)');
+              })()}
             </span>
           </p>
 
@@ -154,9 +156,11 @@ export default function AuditLog({ loaderData }: Route.ComponentProps) {
             <span className="font-medium">{_(msg`Last Updated`)}</span>
 
             <span className="mt-1 block">
-              {DateTime.fromJSDate(document.updatedAt)
-                .setLocale(APP_I18N_OPTIONS.defaultLocale)
-                .toFormat('yyyy-MM-dd hh:mm:ss a (ZZZZ)')}
+              {(() => {
+                const dt = DateTime.fromJSDate(document.updatedAt).setLocale(APP_I18N_OPTIONS.defaultLocale);
+                const tz = document.documentMeta?.timezone;
+                return tz && tz !== 'N/A' ? dt.setZone(tz).toFormat('yyyy-MM-dd hh:mm:ss a (ZZZZ)') : dt.toFormat('yyyy-MM-dd hh:mm:ss a (ZZZZ)');
+              })()}
             </span>
           </p>
 
@@ -184,7 +188,7 @@ export default function AuditLog({ loaderData }: Route.ComponentProps) {
       </Card>
 
       <div className="mt-8">
-        <InternalAuditLogTable logs={auditLogs} />
+        <InternalAuditLogTable logs={auditLogs} timezone={document.documentMeta?.timezone} />
       </div>
 
       {!hidePoweredBy && (
