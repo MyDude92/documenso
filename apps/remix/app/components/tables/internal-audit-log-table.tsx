@@ -12,6 +12,7 @@ import { UAParser } from 'ua-parser-js';
 
 export type AuditLogDataTableProps = {
   logs: TDocumentAuditLog[];
+  timezone?: string;
 };
 
 const dateFormat: DateTimeFormatOptions = {
@@ -57,7 +58,7 @@ const formatUserAgent = (userAgent: string | null | undefined, userAgentInfo: UA
   return msg`${userAgent}`;
 };
 
-export const InternalAuditLogTable = ({ logs }: AuditLogDataTableProps) => {
+export const InternalAuditLogTable = ({ logs, timezone }: AuditLogDataTableProps) => {
   const { _, i18n } = useLingui();
 
   const parser = new UAParser();
@@ -97,9 +98,12 @@ export const InternalAuditLogTable = ({ logs }: AuditLogDataTableProps) => {
                 </div>
 
                 <div className="text-muted-foreground text-sm print:text-[8pt]">
-                  {DateTime.fromJSDate(log.createdAt)
-                    .setLocale(APP_I18N_OPTIONS.defaultLocale)
-                    .toLocaleString(dateFormat)}
+                  {(() => {
+                    const dt = DateTime.fromJSDate(log.createdAt).setLocale(APP_I18N_OPTIONS.defaultLocale);
+                    return timezone && timezone !== 'N/A'
+                      ? dt.setZone(timezone).toFormat('yyyy-MM-dd hh:mm:ss a (ZZZZ)')
+                      : dt.toUTC().toFormat('yyyy-MM-dd hh:mm:ss a (ZZZZ)');
+                  })()}
                 </div>
               </div>
 
